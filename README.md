@@ -10,23 +10,46 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 ```
+## Veri tabanını silme
+Veri tabanını silelim temiz bir görüntü için.
+
+Komut
+```bash
+rm -f storage/iot.db storage/iot.db-wal storage/iot.db-shm
+```
+
+## Edge Layer
+Edge işlemini başlatıp DB oluşturma işlemini tamamalayalım.
+
+Komut:
+```bash
+python -m edge.edge_processor --db storage/iot.db --achp-threshold 50.0
+```
+
+## Simulator çalıştırma(Publisher)
+```bash
+python simulator/simulator.py --interval 1
+```
+MQTT’ye her 1 saniyede bir JSON mesajı gönderir
+Edge terminalinde insert logları akmaya başlar
 
 ## MQTT Broker (Mosquitto)
-Broker zaten yoksa, yerelde Mosquitto çalıştırın (veya Docker ile 1883 portunu açın).
+Broker ile akışı görüntüleriz.
 
 Abone (mesajları görmek için):
 ```bash
 mosquitto_sub -t greenhouse/telemetry -v
 ```
 
-## Simulator çalıştırma
+## Terminal Sekmesi — Live Dashboard (SQLite canlı tablo/KPI)
+Bu sekme sunumda “en görünür” çıktıyı verir: veri aktıkça tablo/KPI güncellenir.
+
 ```bash
-python simulator/simulator.py --host localhost --port 1883 --interval 1
+python visualize/live_dashboard.py --db storage/iot.db --device-id gh_01 --refresh 1
 ```
 
-İlk 20 satır ile hızlı test:
+## Terminal Sekmesi — Plot (SQLite → Matplotlib)
+Plot’u, en az 50–100 satır biriktikten sonra açmak daha anlamlıdır.
 ```bash
-python simulator/simulator.py --rows 20 --interval 0.2
+python visualize/plot.py --db storage/iot.db --limit 300
 ```
-
-Not: CSV'deki `Class` alanı, stabil bir şekilde tamsayıya encode edilir (örn. SA→0).
