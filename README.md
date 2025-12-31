@@ -2,54 +2,63 @@
 
 Bu repo, greenhouse.csv içeriğini bir IoT cihazı gibi MQTT üzerinden yayınlamak için bir **simulator** içerir.
 
-## Kurulum
+## Hızlı Başlangıç (Otomatik)
+
+Proje yönetimini kolaylaştırmak için `runner.py` scripti hazırlanmıştır.
+
+### 1. Kurulum ve Hazırlık
+Sanal ortam oluşturup bağlantıları yükleyin:
+
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-source .venv/bin/activate
-
-pip install -r requirements.txt
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python runner.py install
 ```
-## Veri tabanını silme
-Veri tabanını silelim temiz bir görüntü için.
 
-Komut
+### 2. Veri Tabanını Temizleme (Opsiyonel)
+Temiz bir başlangıç yapmak isterseniz eski veritabanını silebilirsiniz:
 ```bash
-rm -f storage/iot.db storage/iot.db-wal storage/iot.db-shm
+python runner.py clean
 ```
 
-## Edge Layer
-Edge işlemini başlatıp DB oluşturma işlemini tamamalayalım.
+### 3. Çalıştırma
+Projenin farklı parçalarını çalıştırmak için aşağıdaki komutları ayrı terminallerde çalıştırabilirsiniz.
 
-Komut:
+**Adım 1: Edge Processor (Veriyi işler ve kayerder)**
+MQTT'den gelen veriyi dinler ve veritabanına yazar.
 ```bash
-python -m edge.edge_processor --db storage/iot.db --achp-threshold 50.0
+python runner.py edge
 ```
 
-## Simulator çalıştırma(Publisher)
+**Adım 2: Simulator (Veri üretir)**
+Sensör verisi üretip MQTT'ye gönderir.
 ```bash
-python simulator/simulator.py --interval 1
+python runner.py sim
 ```
-MQTT’ye her 1 saniyede bir JSON mesajı gönderir
-Edge terminalinde insert logları akmaya başlar
 
-## MQTT Broker (Mosquitto)
-Broker ile akışı görüntüleriz.
-
-Abone (mesajları görmek için):
+**Adım 3: Live Dashboard (Canlı İzleme)**
+Veritabanına yazılan veriyi anlık olarak gösterir.
 ```bash
-mosquitto_sub -t greenhouse/telemetry -v
+python runner.py dash
 ```
 
-## Terminal Sekmesi — Live Dashboard (SQLite canlı tablo/KPI)
-Bu sekme sunumda “en görünür” çıktıyı verir: veri aktıkça tablo/KPI güncellenir.
-
+**Adım 4: Plot (Grafik)**
+Biriken veriyi grafik olarak çizer (En az 50-100 veri biriktikten sonra çalıştırın).
 ```bash
-python visualize/live_dashboard.py --db storage/iot.db --device-id gh_01 --refresh 1
+python runner.py plot
 ```
 
-## Terminal Sekmesi — Plot (SQLite → Matplotlib)
-Plot’u, en az 50–100 satır biriktikten sonra açmak daha anlamlıdır.
-```bash
-python visualize/plot.py --db storage/iot.db --limit 300
-```
+---
+
+## Manuel Çalıştırma (Eski Yöntem)
+Dilerseniz script kullanmadan da çalıştırabilirsiniz:
+
+**Kurulum:** `pip install -r requirements.txt`
+
+**Temizleme:** `rm -f storage/iot.db*`
+
+**Edge:** `python -m edge.edge_processor --db storage/iot.db --achp-threshold 50.0`
+
+**Sim:** `python simulator/simulator.py --interval 1`
+
+**Dash:** `python visualize/live_dashboard.py --db storage/iot.db --device-id gh_01 --refresh 1`
