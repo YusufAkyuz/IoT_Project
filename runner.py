@@ -61,6 +61,14 @@ def start_plot():
     cmd = f"{sys.executable} visualize/plot.py --db storage/iot.db --limit 300"
     run_command(cmd)
 
+def start_web():
+    """Starts the Streamlit Web Dashboard."""
+    print("Starting Web Dashboard...")
+    # Streamlit runs as a separate executable, but usually installed in the same venv bin
+    # We can invoke it via `python -m streamlit run ...` to be safe with the current python env
+    cmd = f"{sys.executable} -m streamlit run visualize/web_dashboard.py"
+    run_command(cmd)
+
 def main():
     parser = argparse.ArgumentParser(description="IoT Greenhouse Project Runner")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -76,6 +84,7 @@ def main():
     subparsers.add_parser("sim", help="Run the Simulator (Publishes to MQTT)")
     subparsers.add_parser("dash", help="Run the Live Dashboard (Reads from DB)")
     subparsers.add_parser("plot", help="Run the Matplotlib Plot (Reads from DB)")
+    subparsers.add_parser("web", help="Run the Streamlit Web Dashboard")
 
     args = parser.parse_args()
 
@@ -91,6 +100,8 @@ def main():
         start_dash()
     elif args.command == "plot":
         start_plot()
+    elif args.command == "web":
+        start_web()
     else:
         parser.print_help()
 

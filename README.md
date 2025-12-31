@@ -48,6 +48,12 @@ Biriken veriyi grafik olarak çizer (En az 50-100 veri biriktikten sonra çalı�
 python runner.py plot
 ```
 
+**Adım 5: Web Dashboard (Streamlit)**
+Modern ve interaktif web arayüzü. Tarayıcıda açılır.
+```bash
+python runner.py web
+```
+
 ---
 
 ## Manuel Çalıştırma (Eski Yöntem)
